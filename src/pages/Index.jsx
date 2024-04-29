@@ -1,5 +1,5 @@
 import { Box, Flex, Input, Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Textarea, Tag, TagLabel, TagCloseButton, IconButton } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 
 const Index = () => {
@@ -12,9 +12,12 @@ const Index = () => {
     if (editMode) {
       const updatedNotes = notes.map(note => note.id === currentNote.id ? currentNote : note);
       setNotes(updatedNotes);
+      localStorage.setItem('notes', JSON.stringify(updatedNotes));
     } else {
       const newNote = { ...currentNote, id: Date.now() };
-      setNotes([...notes, newNote]);
+      const newNotes = [...notes, newNote];
+      setNotes(newNotes);
+      localStorage.setItem('notes', JSON.stringify(newNotes));
     }
     onClose();
     setCurrentNote({ title: '', content: '', labels: [] });
@@ -27,8 +30,17 @@ const Index = () => {
     onOpen();
   };
 
+  useEffect(() => {
+    const savedNotes = JSON.parse(localStorage.getItem('notes'));
+    if (savedNotes) {
+      setNotes(savedNotes);
+    }
+  }, []);
+
   const handleDeleteNote = (noteId) => {
-    setNotes(notes.filter(note => note.id !== noteId));
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    setNotes(updatedNotes);
+    localStorage.setItem('notes', JSON.stringify(updatedNotes));
   };
 
   const handleAddLabel = (label) => {
